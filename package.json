@@ -17,11 +17,11 @@
     "test:domain": "vitest -c vitest.config.domain.ts run",
     "test:functions": "vitest --config vitest.config.functions.ts run",
     "test:ui": "vitest -c vitest.config.ui.ts run",
-    "test:e2e:smoke": "playwright test --project=chromium"
+    "test:e2e:smoke": "playwright test --project=chromium",
+    "test:integration": "vitest run --config vitest.config.integration.ts"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
-    "@cloudflare/vitest-pool-workers": "^0.8.67",
     "@cloudflare/workers-types": "^4.20250826.0",
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
