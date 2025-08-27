@@ -2,12 +2,21 @@ name = "ecv-shortener"
 main = "functions/[[path]].ts"
 compatibility_date = "2024-11-01"
 
+# ===== Local / default =====
 [vars]
 PUBLIC_HOST = "localhost:8788"
 ADMIN_HOST  = "admin.localhost:8788"
 
 [[kv_namespaces]]
 binding = "LINKS"
-id = "dev-links"
+id = "dev-links"            # namespace local
 preview_id = "dev-links-preview"
 
+# ===== Producción (branch main) =====
+[env.production.vars]
+PUBLIC_HOST = "ecv.lat"
+ADMIN_HOST  = "admin.ecv.lat"
+
+[[env.production.kv_namespaces]]
+binding = "LINKS"
+id = "kv-namespace-id-prod" 
