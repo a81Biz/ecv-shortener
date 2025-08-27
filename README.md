@@ -66,13 +66,6 @@ MIT
 
 ---
 
-👉 Lo que sigue es crear el repositorio **`ecv-shortener`** en GitHub, añadir la carpeta `docs/` con los dos documentos:
-
-* `docs/01-producto.md` → la **Descripción del Producto** completa que ya hicimos.
-* `docs/02-requerimiento-tecnico.md` → el **Requerimiento Técnico** detallado.
-
----
-
 ## 🧪 Ejecutar en local (localhost:8788)
 
 > Esta sección guía el setup **desde clonar el repo** hasta tener la app corriendo en `http://localhost:8788` (público) y `http://admin.localhost:8788` (admin).
