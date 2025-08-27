@@ -9,7 +9,8 @@ export const onRequestPost: PagesFunction<Env> = async (ctx) => {
   let cursor: string | undefined = undefined;
 
   do {
-    const page = await ctx.env.LINKS.list({ cursor });
+    const page: { keys: KVNamespaceListResult<string>["keys"]; list_complete: boolean; cursor?: string } =
+      await ctx.env.LINKS.list({ cursor });
     for (const k of page.keys) {
       await ctx.env.LINKS.delete(k.name);
       deleted++;

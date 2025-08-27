@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="2" failures="0" errors="0" time="0.612">
+    <testsuite name="tests/unit/contracts.spec.ts" timestamp="2025-08-27T08:00:41.372Z" hostname="Iluvatar" tests="2" failures="0" errors="0" skipped="0" time="0.0045182">
+        <testcase classname="tests/unit/contracts.spec.ts" name="Contratos API &gt; valida creación mínima (slug opcional)" time="0.0022522">
+        </testcase>
+        <testcase classname="tests/unit/contracts.spec.ts" name="Contratos API &gt; valida respuesta de Link" time="0.0011856">
+        </testcase>
+    </testsuite>
+</testsuites>
