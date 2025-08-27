@@ -1,0 +1,13 @@
+name = "ecv-shortener"
+main = "functions/[[path]].ts"
+compatibility_date = "2024-11-01"
+
+[vars]
+PUBLIC_HOST = "localhost:8788"
+ADMIN_HOST  = "admin.localhost:8788"
+
+[[kv_namespaces]]
+binding = "LINKS"
+id = "dev-links"
+preview_id = "dev-links-preview"
+

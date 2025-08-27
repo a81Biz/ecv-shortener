@@ -1,0 +1,9 @@
+node_modules/
+.pnpm-store/
+apps/web/dist/
+functions/.wrangler/
+functions/dist/
+.DS_Store
+.idea/
+.vscode/
+*.log

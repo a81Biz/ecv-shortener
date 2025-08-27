@@ -1,0 +1,11 @@
+name = "ecv-shortener"
+main = "functions/[[path]].ts"
+compatibility_date = "2024-11-01"
+
+[vars]
+PUBLIC_HOST = "ecv.lat"
+ADMIN_HOST  = "admin.ecv.lat"
+
+[[kv_namespaces]]
+binding = "LINKS"
+id = "${LINKS_NAMESPACE_ID}"

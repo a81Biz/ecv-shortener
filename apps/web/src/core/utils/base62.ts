@@ -1,0 +1,1 @@
+export const alphabet62 = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'; export const rand62 = (len=3)=>Array.from({length:len},()=>alphabet62[Math.floor(Math.random()*alphabet62.length)]).join('');

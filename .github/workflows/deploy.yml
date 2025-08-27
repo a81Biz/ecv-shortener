@@ -1,0 +1,2 @@
+name: ci-deploy
+on: { push: { branches: [ main ] } }
