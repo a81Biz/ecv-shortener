@@ -1,13 +1,15 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// core/response.ts
-var json = /* @__PURE__ */ __name((data, init = {}) => new Response(JSON.stringify(data), {
+// .wrangler/tmp/pages-t2RGbj/functionsWorker-0.5146835368302396.mjs
+var __defProp2 = Object.defineProperty;
+var __name2 = /* @__PURE__ */ __name((target, value) => __defProp2(target, "name", { value, configurable: true }), "__name");
+var json = /* @__PURE__ */ __name2((data, init = {}) => new Response(JSON.stringify(data), {
   headers: { "content-type": "application/json; charset=utf-8", ...init.headers || {} },
   status: init.status ?? 200
 }), "json");
-var notFound = /* @__PURE__ */ __name(() => new Response("Not Found", { status: 404 }), "notFound");
-var redirectNoCache = /* @__PURE__ */ __name((url, status = 302) => new Response(null, {
+var notFound = /* @__PURE__ */ __name2(() => new Response("Not Found", { status: 404 }), "notFound");
+var redirectNoCache = /* @__PURE__ */ __name2((url, status = 302) => new Response(null, {
   status,
   headers: {
     Location: url,
@@ -16,22 +18,20 @@ var redirectNoCache = /* @__PURE__ */ __name((url, status = 302) => new Response
     Expires: "0"
   }
 }), "redirectNoCache");
-
-// core/security/access.ts
 function getAuthenticatedEmail(req) {
   const email = req.headers.get("Cf-Access-Authenticated-User-Email");
   return email && email.length > 0 ? email : null;
 }
 __name(getAuthenticatedEmail, "getAuthenticatedEmail");
+__name2(getAuthenticatedEmail, "getAuthenticatedEmail");
 function requireAccess(req) {
   const email = getAuthenticatedEmail(req);
   if (!email) throw new Response("Unauthorized", { status: 401 });
   return email;
 }
 __name(requireAccess, "requireAccess");
-
-// admin/api/admin/flush.ts
-var onRequestPost = /* @__PURE__ */ __name(async (ctx) => {
+__name2(requireAccess, "requireAccess");
+var onRequestPost = /* @__PURE__ */ __name2(async (ctx) => {
   requireAccess(ctx.request);
   let deleted = 0;
   let cursor = void 0;
@@ -45,14 +45,12 @@ var onRequestPost = /* @__PURE__ */ __name(async (ctx) => {
   } while (cursor);
   return json({ ok: true, deleted });
 }, "onRequestPost");
-
-// infra/qr/QrSvg.ts
 var SIZE = 21;
 var EC_LEN = 7;
 var MODE_BYTE = 4;
 var GF_EXP = new Array(512);
 var GF_LOG = new Array(256);
-(/* @__PURE__ */ __name(function initGF() {
+(/* @__PURE__ */ __name2(/* @__PURE__ */ __name(function initGF() {
   let x = 1;
   for (let i = 0; i < 255; i++) {
     GF_EXP[i] = x;
@@ -61,12 +59,13 @@ var GF_LOG = new Array(256);
     if (x & 256) x ^= 285;
   }
   for (let i = 255; i < 512; i++) GF_EXP[i] = GF_EXP[i - 255];
-}, "initGF"))();
+}, "initGF"), "initGF"))();
 function gfMul(a, b) {
   if (a === 0 || b === 0) return 0;
   return GF_EXP[(GF_LOG[a] + GF_LOG[b]) % 255];
 }
 __name(gfMul, "gfMul");
+__name2(gfMul, "gfMul");
 function rsGeneratorPoly(deg) {
   let poly = [1];
   for (let i = 0; i < deg; i++) {
@@ -81,6 +80,7 @@ function rsGeneratorPoly(deg) {
   return poly;
 }
 __name(rsGeneratorPoly, "rsGeneratorPoly");
+__name2(rsGeneratorPoly, "rsGeneratorPoly");
 function rsEncode(data, ecLen) {
   const gen = rsGeneratorPoly(ecLen);
   const res = new Array(ecLen).fill(0);
@@ -95,9 +95,13 @@ function rsEncode(data, ecLen) {
   return res;
 }
 __name(rsEncode, "rsEncode");
+__name2(rsEncode, "rsEncode");
 var BitBuf = class {
   static {
     __name(this, "BitBuf");
+  }
+  static {
+    __name2(this, "BitBuf");
   }
   bits = [];
   push(val, len) {
@@ -135,9 +139,10 @@ function buildDataBytes(s) {
   return data;
 }
 __name(buildDataBytes, "buildDataBytes");
+__name2(buildDataBytes, "buildDataBytes");
 function initMatrix() {
   const m = Array.from({ length: SIZE }, () => Array(SIZE).fill(-1));
-  const placeFinder = /* @__PURE__ */ __name((r, c) => {
+  const placeFinder = /* @__PURE__ */ __name2((r, c) => {
     for (let i = -1; i <= 7; i++) {
       for (let j = -1; j <= 7; j++) {
         const rr = r + i, cc = c + j;
@@ -160,10 +165,11 @@ function initMatrix() {
   return m;
 }
 __name(initMatrix, "initMatrix");
+__name2(initMatrix, "initMatrix");
 function writeData(m, bytes) {
   const bits = [];
   for (const b of bytes) for (let i = 7; i >= 0; i--) bits.push(b >> i & 1);
-  const isFunc = /* @__PURE__ */ __name((r, c) => m[r][c] !== -1, "isFunc");
+  const isFunc = /* @__PURE__ */ __name2((r, c) => m[r][c] !== -1, "isFunc");
   let dirUp = true;
   let col = SIZE - 1;
   let bi = 0;
@@ -186,6 +192,7 @@ function writeData(m, bytes) {
   }
 }
 __name(writeData, "writeData");
+__name2(writeData, "writeData");
 function placeFormatInfo(m) {
   const formatBits = 30660;
   for (let i = 0; i < 6; i++) m[i][8] = formatBits >> i & 1;
@@ -197,6 +204,7 @@ function placeFormatInfo(m) {
   for (let i = 0; i < 7; i++) m[SIZE - 1 - i][8] = formatBits >> i & 1;
 }
 __name(placeFormatInfo, "placeFormatInfo");
+__name2(placeFormatInfo, "placeFormatInfo");
 function matrixToSvg(m, scale = 6, margin = 2) {
   const dim = (SIZE + margin * 2) * scale;
   let rects = `<rect width="${dim}" height="${dim}" fill="#fff"/>`;
@@ -212,6 +220,7 @@ function matrixToSvg(m, scale = 6, margin = 2) {
   return `<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${dim} ${dim}" shape-rendering="crispEdges">${rects}</svg>`;
 }
 __name(matrixToSvg, "matrixToSvg");
+__name2(matrixToSvg, "matrixToSvg");
 function QrSvg(data) {
   const m = initMatrix();
   const dataBytes = buildDataBytes(data);
@@ -222,33 +231,34 @@ function QrSvg(data) {
   return matrixToSvg(m);
 }
 __name(QrSvg, "QrSvg");
-
-// admin/api/qr/[slug].ts
-var onRequestGet = /* @__PURE__ */ __name(async (ctx) => {
+__name2(QrSvg, "QrSvg");
+var onRequestGet = /* @__PURE__ */ __name2(async (ctx) => {
   requireAccess(ctx.request);
   const { slug } = ctx.params;
   const short = `https://${ctx.env.PUBLIC_HOST}/${slug}`;
   const svg = QrSvg(short);
   return new Response(svg, { headers: { "content-type": "image/svg+xml" } });
 }, "onRequestGet");
-
-// ../packages/domain/src/entities/Link.ts
 var Link = class {
+  static {
+    __name(this, "Link");
+  }
   constructor(props) {
     this.props = props;
   }
   static {
-    __name(this, "Link");
+    __name2(this, "Link");
   }
 };
-
-// ../packages/domain/src/valueObjects/Slug.ts
 var Slug = class _Slug {
+  static {
+    __name(this, "_Slug");
+  }
   constructor(value) {
     this.value = value;
   }
   static {
-    __name(this, "Slug");
+    __name2(this, "Slug");
   }
   static REGEX = /^[A-Za-z0-9_-]{1,32}$/;
   static create(raw) {
@@ -256,14 +266,15 @@ var Slug = class _Slug {
     return new _Slug(raw);
   }
 };
-
-// ../packages/domain/src/valueObjects/TargetUrl.ts
 var TargetUrl = class _TargetUrl {
+  static {
+    __name(this, "_TargetUrl");
+  }
   constructor(value) {
     this.value = value;
   }
   static {
-    __name(this, "TargetUrl");
+    __name2(this, "TargetUrl");
   }
   static create(raw) {
     const normalized = raw.startsWith("http") ? raw : `https://${raw}`;
@@ -276,8 +287,6 @@ var TargetUrl = class _TargetUrl {
     }
   }
 };
-
-// ../packages/domain/src/usecases/CreateLink.ts
 async function CreateLink(repo, input) {
   const slug = Slug.create(input.slug ?? generateShortSlug());
   const target = TargetUrl.create(input.targetUrl);
@@ -296,6 +305,7 @@ async function CreateLink(repo, input) {
   return link;
 }
 __name(CreateLink, "CreateLink");
+__name2(CreateLink, "CreateLink");
 function generateShortSlug() {
   const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
   const len = 3;
@@ -304,8 +314,7 @@ function generateShortSlug() {
   return out;
 }
 __name(generateShortSlug, "generateShortSlug");
-
-// ../packages/domain/src/usecases/UpdateLink.ts
+__name2(generateShortSlug, "generateShortSlug");
 async function UpdateLink(repo, input) {
   const current = await repo.get(input.slug);
   if (!current) throw new Error("Not found");
@@ -319,33 +328,28 @@ async function UpdateLink(repo, input) {
   return updated;
 }
 __name(UpdateLink, "UpdateLink");
-
-// ../packages/domain/src/usecases/ToggleLink.ts
+__name2(UpdateLink, "UpdateLink");
 async function ToggleLink(repo, slug, active) {
   const link = await repo.toggle(slug, active);
   return link;
 }
 __name(ToggleLink, "ToggleLink");
-
-// ../packages/domain/src/usecases/GetLink.ts
+__name2(ToggleLink, "ToggleLink");
 async function GetLink(repo, slug) {
   return repo.get(slug);
 }
 __name(GetLink, "GetLink");
-
-// ../packages/domain/src/usecases/ListLinks.ts
+__name2(GetLink, "GetLink");
 async function ListLinks(repo, opts) {
   return repo.list(opts);
 }
 __name(ListLinks, "ListLinks");
-
-// ../packages/domain/src/dto/LinkDTO.ts
+__name2(ListLinks, "ListLinks");
 function toDTO(link) {
   return { ...link.props };
 }
 __name(toDTO, "toDTO");
-
-// ../packages/domain/src/usecases/DeleteLink.ts
+__name2(toDTO, "toDTO");
 async function DeleteLink(repo, slug) {
   if (!slug || !/^[a-zA-Z0-9-_]+$/.test(slug)) {
     throw new Error("Invalid slug");
@@ -354,14 +358,16 @@ async function DeleteLink(repo, slug) {
   return { ok: true, deleted };
 }
 __name(DeleteLink, "DeleteLink");
-
-// infra/kv/KvLinkRepository.ts
+__name2(DeleteLink, "DeleteLink");
 var KvLinkRepository = class {
+  static {
+    __name(this, "KvLinkRepository");
+  }
   constructor(kv) {
     this.kv = kv;
   }
   static {
-    __name(this, "KvLinkRepository");
+    __name2(this, "KvLinkRepository");
   }
   async create(link) {
     const key = `link:${link.props.slug}`;
@@ -419,9 +425,7 @@ var KvLinkRepository = class {
     await this.update(l);
   }
 };
-
-// admin/api/[slug]/state.ts
-var onRequestPatch = /* @__PURE__ */ __name(async (ctx) => {
+var onRequestPatch = /* @__PURE__ */ __name2(async (ctx) => {
   requireAccess(ctx.request);
   const { slug } = ctx.params;
   const body = await ctx.request.json();
@@ -429,9 +433,7 @@ var onRequestPatch = /* @__PURE__ */ __name(async (ctx) => {
   const link = await ToggleLink(repo, slug, Boolean(body.active));
   return json({ ok: true, link: toDTO(link) });
 }, "onRequestPatch");
-
-// admin/api/create.ts
-var onRequestPost2 = /* @__PURE__ */ __name(async (ctx) => {
+var onRequestPost2 = /* @__PURE__ */ __name2(async (ctx) => {
   const email = requireAccess(ctx.request);
   const body = await ctx.request.json();
   const repo = new KvLinkRepository(ctx.env.LINKS);
@@ -451,9 +453,7 @@ var onRequestPost2 = /* @__PURE__ */ __name(async (ctx) => {
     throw e;
   }
 }, "onRequestPost");
-
-// admin/api/links.ts
-var onRequestGet2 = /* @__PURE__ */ __name(async (ctx) => {
+var onRequestGet2 = /* @__PURE__ */ __name2(async (ctx) => {
   requireAccess(ctx.request);
   const url = new URL(ctx.request.url);
   const opts = {
@@ -467,16 +467,12 @@ var onRequestGet2 = /* @__PURE__ */ __name(async (ctx) => {
   const res = await ListLinks(repo, opts);
   return json({ items: res.items.map(toDTO), nextCursor: res.nextCursor });
 }, "onRequestGet");
-
-// admin/api/whoami.ts
-var onRequestGet3 = /* @__PURE__ */ __name(async (ctx) => {
+var onRequestGet3 = /* @__PURE__ */ __name2(async (ctx) => {
   const email = getAuthenticatedEmail(ctx.request);
   if (!email) return new Response("Unauthorized", { status: 401 });
   return json({ email });
 }, "onRequestGet");
-
-// ui/api/links.ts
-var onRequestGet4 = /* @__PURE__ */ __name(async (ctx) => {
+var onRequestGet4 = /* @__PURE__ */ __name2(async (ctx) => {
   const url = new URL(ctx.request.url);
   const opts = {
     search: url.searchParams.get("search") ?? void 0,
@@ -489,9 +485,7 @@ var onRequestGet4 = /* @__PURE__ */ __name(async (ctx) => {
   const res = await ListLinks(repo, opts);
   return json({ items: res.items.map(toDTO), nextCursor: res.nextCursor });
 }, "onRequestGet");
-
-// admin/api/[slug].ts
-var onRequestGet5 = /* @__PURE__ */ __name(async (ctx) => {
+var onRequestGet5 = /* @__PURE__ */ __name2(async (ctx) => {
   requireAccess(ctx.request);
   const { slug } = ctx.params;
   const repo = new KvLinkRepository(ctx.env.LINKS);
@@ -499,7 +493,7 @@ var onRequestGet5 = /* @__PURE__ */ __name(async (ctx) => {
   if (!link) return new Response("Not Found", { status: 404 });
   return json({ link: toDTO(link) });
 }, "onRequestGet");
-var onRequestPut = /* @__PURE__ */ __name(async (ctx) => {
+var onRequestPut = /* @__PURE__ */ __name2(async (ctx) => {
   requireAccess(ctx.request);
   const { slug } = ctx.params;
   const body = await ctx.request.json();
@@ -507,7 +501,7 @@ var onRequestPut = /* @__PURE__ */ __name(async (ctx) => {
   const link = await UpdateLink(repo, { slug, targetUrl: body.targetUrl, tags: body.tags });
   return json({ ok: true, link: toDTO(link) });
 }, "onRequestPut");
-var onRequestDelete = /* @__PURE__ */ __name(async (ctx) => {
+var onRequestDelete = /* @__PURE__ */ __name2(async (ctx) => {
   try {
     requireAccess(ctx.request);
     const { slug } = ctx.params;
@@ -521,17 +515,13 @@ var onRequestDelete = /* @__PURE__ */ __name(async (ctx) => {
     return json({ ok: false, error: msg }, code);
   }
 }, "onRequestDelete");
-
-// ui/api/[slug].ts
-var onRequestGet6 = /* @__PURE__ */ __name(async (ctx) => {
+var onRequestGet6 = /* @__PURE__ */ __name2(async (ctx) => {
   const { slug } = ctx.params;
   const repo = new KvLinkRepository(ctx.env.LINKS);
   const link = await GetLink(repo, slug);
   if (!link) return new Response("Not Found", { status: 404 });
   return json({ link: toDTO(link) });
 }, "onRequestGet");
-
-// public/redirect.ts
 async function handlePublicRedirect(ctx, slug) {
   const repo = new KvLinkRepository(ctx.env.LINKS);
   const link = await repo.get(slug);
@@ -543,9 +533,8 @@ async function handlePublicRedirect(ctx, slug) {
   return redirectNoCache(link.props.targetUrl, 302);
 }
 __name(handlePublicRedirect, "handlePublicRedirect");
-
-// [[path]].ts
-var onRequest = /* @__PURE__ */ __name(async (ctx) => {
+__name2(handlePublicRedirect, "handlePublicRedirect");
+var onRequest = /* @__PURE__ */ __name2(async (ctx) => {
   const url = new URL(ctx.request.url);
   const path = url.pathname;
   const host = url.host.toLowerCase();
@@ -566,8 +555,6 @@ var onRequest = /* @__PURE__ */ __name(async (ctx) => {
   if (m) return handlePublicRedirect(ctx, m[1]);
   return notFound();
 }, "onRequest");
-
-// ../.wrangler/tmp/pages-8ePkwp/functionsRoutes-0.2796404055723407.mjs
 var routes = [
   {
     routePath: "/admin/api/admin/flush",
@@ -654,8 +641,6 @@ var routes = [
     modules: [onRequest]
   }
 ];
-
-// ../node_modules/.pnpm/path-to-regexp@6.3.0/node_modules/path-to-regexp/dist.es2015/index.js
 function lexer(str) {
   var tokens = [];
   var i = 0;
@@ -740,6 +725,7 @@ function lexer(str) {
   return tokens;
 }
 __name(lexer, "lexer");
+__name2(lexer, "lexer");
 function parse(str, options) {
   if (options === void 0) {
     options = {};
@@ -750,18 +736,18 @@ function parse(str, options) {
   var key = 0;
   var i = 0;
   var path = "";
-  var tryConsume = /* @__PURE__ */ __name(function(type) {
+  var tryConsume = /* @__PURE__ */ __name2(function(type) {
     if (i < tokens.length && tokens[i].type === type)
       return tokens[i++].value;
   }, "tryConsume");
-  var mustConsume = /* @__PURE__ */ __name(function(type) {
+  var mustConsume = /* @__PURE__ */ __name2(function(type) {
     var value2 = tryConsume(type);
     if (value2 !== void 0)
       return value2;
     var _a2 = tokens[i], nextType = _a2.type, index = _a2.index;
     throw new TypeError("Unexpected ".concat(nextType, " at ").concat(index, ", expected ").concat(type));
   }, "mustConsume");
-  var consumeText = /* @__PURE__ */ __name(function() {
+  var consumeText = /* @__PURE__ */ __name2(function() {
     var result2 = "";
     var value2;
     while (value2 = tryConsume("CHAR") || tryConsume("ESCAPED_CHAR")) {
@@ -769,7 +755,7 @@ function parse(str, options) {
     }
     return result2;
   }, "consumeText");
-  var isSafe = /* @__PURE__ */ __name(function(value2) {
+  var isSafe = /* @__PURE__ */ __name2(function(value2) {
     for (var _i = 0, delimiter_1 = delimiter; _i < delimiter_1.length; _i++) {
       var char2 = delimiter_1[_i];
       if (value2.indexOf(char2) > -1)
@@ -777,7 +763,7 @@ function parse(str, options) {
     }
     return false;
   }, "isSafe");
-  var safePattern = /* @__PURE__ */ __name(function(prefix2) {
+  var safePattern = /* @__PURE__ */ __name2(function(prefix2) {
     var prev = result[result.length - 1];
     var prevText = prefix2 || (prev && typeof prev === "string" ? prev : "");
     if (prev && !prevText) {
@@ -840,12 +826,14 @@ function parse(str, options) {
   return result;
 }
 __name(parse, "parse");
+__name2(parse, "parse");
 function match(str, options) {
   var keys = [];
   var re = pathToRegexp(str, keys, options);
   return regexpToFunction(re, keys, options);
 }
 __name(match, "match");
+__name2(match, "match");
 function regexpToFunction(re, keys, options) {
   if (options === void 0) {
     options = {};
@@ -859,7 +847,7 @@ function regexpToFunction(re, keys, options) {
       return false;
     var path = m[0], index = m.index;
     var params = /* @__PURE__ */ Object.create(null);
-    var _loop_1 = /* @__PURE__ */ __name(function(i2) {
+    var _loop_1 = /* @__PURE__ */ __name2(function(i2) {
       if (m[i2] === void 0)
         return "continue";
       var key = keys[i2 - 1];
@@ -878,14 +866,17 @@ function regexpToFunction(re, keys, options) {
   };
 }
 __name(regexpToFunction, "regexpToFunction");
+__name2(regexpToFunction, "regexpToFunction");
 function escapeString(str) {
   return str.replace(/([.+*?=^!:${}()[\]|/\\])/g, "\\$1");
 }
 __name(escapeString, "escapeString");
+__name2(escapeString, "escapeString");
 function flags(options) {
   return options && options.sensitive ? "" : "i";
 }
 __name(flags, "flags");
+__name2(flags, "flags");
 function regexpToRegexp(path, keys) {
   if (!keys)
     return path;
@@ -906,6 +897,7 @@ function regexpToRegexp(path, keys) {
   return path;
 }
 __name(regexpToRegexp, "regexpToRegexp");
+__name2(regexpToRegexp, "regexpToRegexp");
 function arrayToRegexp(paths, keys, options) {
   var parts = paths.map(function(path) {
     return pathToRegexp(path, keys, options).source;
@@ -913,10 +905,12 @@ function arrayToRegexp(paths, keys, options) {
   return new RegExp("(?:".concat(parts.join("|"), ")"), flags(options));
 }
 __name(arrayToRegexp, "arrayToRegexp");
+__name2(arrayToRegexp, "arrayToRegexp");
 function stringToRegexp(path, keys, options) {
   return tokensToRegexp(parse(path, options), keys, options);
 }
 __name(stringToRegexp, "stringToRegexp");
+__name2(stringToRegexp, "stringToRegexp");
 function tokensToRegexp(tokens, keys, options) {
   if (options === void 0) {
     options = {};
@@ -972,6 +966,7 @@ function tokensToRegexp(tokens, keys, options) {
   return new RegExp(route, flags(options));
 }
 __name(tokensToRegexp, "tokensToRegexp");
+__name2(tokensToRegexp, "tokensToRegexp");
 function pathToRegexp(path, keys, options) {
   if (path instanceof RegExp)
     return regexpToRegexp(path, keys);
@@ -980,8 +975,7 @@ function pathToRegexp(path, keys, options) {
   return stringToRegexp(path, keys, options);
 }
 __name(pathToRegexp, "pathToRegexp");
-
-// ../node_modules/.pnpm/wrangler@4.33.1_@cloudflare+workers-types@4.20250828.0/node_modules/wrangler/templates/pages-template-worker.ts
+__name2(pathToRegexp, "pathToRegexp");
 var escapeRegex = /[.+?^${}()|[\]\\]/g;
 function* executeRequest(request) {
   const requestPath = new URL(request.url).pathname;
@@ -1032,13 +1026,14 @@ function* executeRequest(request) {
   }
 }
 __name(executeRequest, "executeRequest");
+__name2(executeRequest, "executeRequest");
 var pages_template_worker_default = {
   async fetch(originalRequest, env, workerContext) {
     let request = originalRequest;
     const handlerIterator = executeRequest(request);
     let data = {};
     let isFailOpen = false;
-    const next = /* @__PURE__ */ __name(async (input, init) => {
+    const next = /* @__PURE__ */ __name2(async (input, init) => {
       if (input !== void 0) {
         let url = input;
         if (typeof input === "string") {
@@ -1065,7 +1060,7 @@ var pages_template_worker_default = {
           },
           env,
           waitUntil: workerContext.waitUntil.bind(workerContext),
-          passThroughOnException: /* @__PURE__ */ __name(() => {
+          passThroughOnException: /* @__PURE__ */ __name2(() => {
             isFailOpen = true;
           }, "passThroughOnException")
         };
@@ -1093,16 +1088,14 @@ var pages_template_worker_default = {
     }
   }
 };
-var cloneResponse = /* @__PURE__ */ __name((response) => (
+var cloneResponse = /* @__PURE__ */ __name2((response) => (
   // https://fetch.spec.whatwg.org/#null-body-status
   new Response(
     [101, 204, 205, 304].includes(response.status) ? null : response.body,
     response
   )
 ), "cloneResponse");
-
-// ../node_modules/.pnpm/wrangler@4.33.1_@cloudflare+workers-types@4.20250828.0/node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
-var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+var drainBody = /* @__PURE__ */ __name2(async (request, env, _ctx, middlewareCtx) => {
   try {
     return await middlewareCtx.next(request, env);
   } finally {
@@ -1118,8 +1111,6 @@ var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
   }
 }, "drainBody");
 var middleware_ensure_req_body_drained_default = drainBody;
-
-// ../node_modules/.pnpm/wrangler@4.33.1_@cloudflare+workers-types@4.20250828.0/node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
 function reduceError(e) {
   return {
     name: e?.name,
@@ -1129,7 +1120,8 @@ function reduceError(e) {
   };
 }
 __name(reduceError, "reduceError");
-var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+__name2(reduceError, "reduceError");
+var jsonError = /* @__PURE__ */ __name2(async (request, env, _ctx, middlewareCtx) => {
   try {
     return await middlewareCtx.next(request, env);
   } catch (e) {
@@ -1141,20 +1133,17 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
   }
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
-
-// ../.wrangler/tmp/bundle-WG1XcG/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
 ];
 var middleware_insertion_facade_default = pages_template_worker_default;
-
-// ../node_modules/.pnpm/wrangler@4.33.1_@cloudflare+workers-types@4.20250828.0/node_modules/wrangler/templates/middleware/common.ts
 var __facade_middleware__ = [];
 function __facade_register__(...args) {
   __facade_middleware__.push(...args.flat());
 }
 __name(__facade_register__, "__facade_register__");
+__name2(__facade_register__, "__facade_register__");
 function __facade_invokeChain__(request, env, ctx, dispatch, middlewareChain) {
   const [head, ...tail] = middlewareChain;
   const middlewareCtx = {
@@ -1166,6 +1155,7 @@ function __facade_invokeChain__(request, env, ctx, dispatch, middlewareChain) {
   return head(request, env, ctx, middlewareCtx);
 }
 __name(__facade_invokeChain__, "__facade_invokeChain__");
+__name2(__facade_invokeChain__, "__facade_invokeChain__");
 function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
   return __facade_invokeChain__(request, env, ctx, dispatch, [
     ...__facade_middleware__,
@@ -1173,16 +1163,18 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
   ]);
 }
 __name(__facade_invoke__, "__facade_invoke__");
-
-// ../.wrangler/tmp/bundle-WG1XcG/middleware-loader.entry.ts
+__name2(__facade_invoke__, "__facade_invoke__");
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
+  static {
+    __name(this, "___Facade_ScheduledController__");
+  }
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
     this.cron = cron;
     this.#noRetry = noRetry;
   }
   static {
-    __name(this, "__Facade_ScheduledController__");
+    __name2(this, "__Facade_ScheduledController__");
   }
   #noRetry;
   noRetry() {
@@ -1199,7 +1191,7 @@ function wrapExportedHandler(worker) {
   for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__) {
     __facade_register__(middleware);
   }
-  const fetchDispatcher = /* @__PURE__ */ __name(function(request, env, ctx) {
+  const fetchDispatcher = /* @__PURE__ */ __name2(function(request, env, ctx) {
     if (worker.fetch === void 0) {
       throw new Error("Handler does not export a fetch() function.");
     }
@@ -1208,7 +1200,7 @@ function wrapExportedHandler(worker) {
   return {
     ...worker,
     fetch(request, env, ctx) {
-      const dispatcher = /* @__PURE__ */ __name(function(type, init) {
+      const dispatcher = /* @__PURE__ */ __name2(function(type, init) {
         if (type === "scheduled" && worker.scheduled !== void 0) {
           const controller = new __Facade_ScheduledController__(
             Date.now(),
@@ -1224,6 +1216,7 @@ function wrapExportedHandler(worker) {
   };
 }
 __name(wrapExportedHandler, "wrapExportedHandler");
+__name2(wrapExportedHandler, "wrapExportedHandler");
 function wrapWorkerEntrypoint(klass) {
   if (__INTERNAL_WRANGLER_MIDDLEWARE__ === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__.length === 0) {
     return klass;
@@ -1232,7 +1225,7 @@ function wrapWorkerEntrypoint(klass) {
     __facade_register__(middleware);
   }
   return class extends klass {
-    #fetchDispatcher = /* @__PURE__ */ __name((request, env, ctx) => {
+    #fetchDispatcher = /* @__PURE__ */ __name2((request, env, ctx) => {
       this.env = env;
       this.ctx = ctx;
       if (super.fetch === void 0) {
@@ -1240,7 +1233,7 @@ function wrapWorkerEntrypoint(klass) {
       }
       return super.fetch(request);
     }, "#fetchDispatcher");
-    #dispatcher = /* @__PURE__ */ __name((type, init) => {
+    #dispatcher = /* @__PURE__ */ __name2((type, init) => {
       if (type === "scheduled" && super.scheduled !== void 0) {
         const controller = new __Facade_ScheduledController__(
           Date.now(),
@@ -1263,6 +1256,7 @@ function wrapWorkerEntrypoint(klass) {
   };
 }
 __name(wrapWorkerEntrypoint, "wrapWorkerEntrypoint");
+__name2(wrapWorkerEntrypoint, "wrapWorkerEntrypoint");
 var WRAPPED_ENTRY;
 if (typeof middleware_insertion_facade_default === "object") {
   WRAPPED_ENTRY = wrapExportedHandler(middleware_insertion_facade_default);
@@ -1270,8 +1264,178 @@ if (typeof middleware_insertion_facade_default === "object") {
   WRAPPED_ENTRY = wrapWorkerEntrypoint(middleware_insertion_facade_default);
 }
 var middleware_loader_entry_default = WRAPPED_ENTRY;
-export {
-  __INTERNAL_WRANGLER_MIDDLEWARE__,
-  middleware_loader_entry_default as default
+
+// node_modules/.pnpm/wrangler@4.33.1_@cloudflare+workers-types@4.20250828.0/node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
+var drainBody2 = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+  try {
+    return await middlewareCtx.next(request, env);
+  } finally {
+    try {
+      if (request.body !== null && !request.bodyUsed) {
+        const reader = request.body.getReader();
+        while (!(await reader.read()).done) {
+        }
+      }
+    } catch (e) {
+      console.error("Failed to drain the unused request body.", e);
+    }
+  }
+}, "drainBody");
+var middleware_ensure_req_body_drained_default2 = drainBody2;
+
+// node_modules/.pnpm/wrangler@4.33.1_@cloudflare+workers-types@4.20250828.0/node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
+function reduceError2(e) {
+  return {
+    name: e?.name,
+    message: e?.message ?? String(e),
+    stack: e?.stack,
+    cause: e?.cause === void 0 ? void 0 : reduceError2(e.cause)
+  };
+}
+__name(reduceError2, "reduceError");
+var jsonError2 = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+  try {
+    return await middlewareCtx.next(request, env);
+  } catch (e) {
+    const error = reduceError2(e);
+    return Response.json(error, {
+      status: 500,
+      headers: { "MF-Experimental-Error-Stack": "true" }
+    });
+  }
+}, "jsonError");
+var middleware_miniflare3_json_error_default2 = jsonError2;
+
+// .wrangler/tmp/bundle-GLBmnS/middleware-insertion-facade.js
+var __INTERNAL_WRANGLER_MIDDLEWARE__2 = [
+  middleware_ensure_req_body_drained_default2,
+  middleware_miniflare3_json_error_default2
+];
+var middleware_insertion_facade_default2 = middleware_loader_entry_default;
+
+// node_modules/.pnpm/wrangler@4.33.1_@cloudflare+workers-types@4.20250828.0/node_modules/wrangler/templates/middleware/common.ts
+var __facade_middleware__2 = [];
+function __facade_register__2(...args) {
+  __facade_middleware__2.push(...args.flat());
+}
+__name(__facade_register__2, "__facade_register__");
+function __facade_invokeChain__2(request, env, ctx, dispatch, middlewareChain) {
+  const [head, ...tail] = middlewareChain;
+  const middlewareCtx = {
+    dispatch,
+    next(newRequest, newEnv) {
+      return __facade_invokeChain__2(newRequest, newEnv, ctx, dispatch, tail);
+    }
+  };
+  return head(request, env, ctx, middlewareCtx);
+}
+__name(__facade_invokeChain__2, "__facade_invokeChain__");
+function __facade_invoke__2(request, env, ctx, dispatch, finalMiddleware) {
+  return __facade_invokeChain__2(request, env, ctx, dispatch, [
+    ...__facade_middleware__2,
+    finalMiddleware
+  ]);
+}
+__name(__facade_invoke__2, "__facade_invoke__");
+
+// .wrangler/tmp/bundle-GLBmnS/middleware-loader.entry.ts
+var __Facade_ScheduledController__2 = class ___Facade_ScheduledController__2 {
+  constructor(scheduledTime, cron, noRetry) {
+    this.scheduledTime = scheduledTime;
+    this.cron = cron;
+    this.#noRetry = noRetry;
+  }
+  static {
+    __name(this, "__Facade_ScheduledController__");
+  }
+  #noRetry;
+  noRetry() {
+    if (!(this instanceof ___Facade_ScheduledController__2)) {
+      throw new TypeError("Illegal invocation");
+    }
+    this.#noRetry();
+  }
 };
-//# sourceMappingURL=functionsWorker-0.16915985605163852.mjs.map
+function wrapExportedHandler2(worker) {
+  if (__INTERNAL_WRANGLER_MIDDLEWARE__2 === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__2.length === 0) {
+    return worker;
+  }
+  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__2) {
+    __facade_register__2(middleware);
+  }
+  const fetchDispatcher = /* @__PURE__ */ __name(function(request, env, ctx) {
+    if (worker.fetch === void 0) {
+      throw new Error("Handler does not export a fetch() function.");
+    }
+    return worker.fetch(request, env, ctx);
+  }, "fetchDispatcher");
+  return {
+    ...worker,
+    fetch(request, env, ctx) {
+      const dispatcher = /* @__PURE__ */ __name(function(type, init) {
+        if (type === "scheduled" && worker.scheduled !== void 0) {
+          const controller = new __Facade_ScheduledController__2(
+            Date.now(),
+            init.cron ?? "",
+            () => {
+            }
+          );
+          return worker.scheduled(controller, env, ctx);
+        }
+      }, "dispatcher");
+      return __facade_invoke__2(request, env, ctx, dispatcher, fetchDispatcher);
+    }
+  };
+}
+__name(wrapExportedHandler2, "wrapExportedHandler");
+function wrapWorkerEntrypoint2(klass) {
+  if (__INTERNAL_WRANGLER_MIDDLEWARE__2 === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__2.length === 0) {
+    return klass;
+  }
+  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__2) {
+    __facade_register__2(middleware);
+  }
+  return class extends klass {
+    #fetchDispatcher = /* @__PURE__ */ __name((request, env, ctx) => {
+      this.env = env;
+      this.ctx = ctx;
+      if (super.fetch === void 0) {
+        throw new Error("Entrypoint class does not define a fetch() function.");
+      }
+      return super.fetch(request);
+    }, "#fetchDispatcher");
+    #dispatcher = /* @__PURE__ */ __name((type, init) => {
+      if (type === "scheduled" && super.scheduled !== void 0) {
+        const controller = new __Facade_ScheduledController__2(
+          Date.now(),
+          init.cron ?? "",
+          () => {
+          }
+        );
+        return super.scheduled(controller);
+      }
+    }, "#dispatcher");
+    fetch(request) {
+      return __facade_invoke__2(
+        request,
+        this.env,
+        this.ctx,
+        this.#dispatcher,
+        this.#fetchDispatcher
+      );
+    }
+  };
+}
+__name(wrapWorkerEntrypoint2, "wrapWorkerEntrypoint");
+var WRAPPED_ENTRY2;
+if (typeof middleware_insertion_facade_default2 === "object") {
+  WRAPPED_ENTRY2 = wrapExportedHandler2(middleware_insertion_facade_default2);
+} else if (typeof middleware_insertion_facade_default2 === "function") {
+  WRAPPED_ENTRY2 = wrapWorkerEntrypoint2(middleware_insertion_facade_default2);
+}
+var middleware_loader_entry_default2 = WRAPPED_ENTRY2;
+export {
+  __INTERNAL_WRANGLER_MIDDLEWARE__2 as __INTERNAL_WRANGLER_MIDDLEWARE__,
+  middleware_loader_entry_default2 as default
+};
+//# sourceMappingURL=functionsWorker-0.5146835368302396.js.map
