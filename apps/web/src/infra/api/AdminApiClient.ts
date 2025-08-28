@@ -8,9 +8,17 @@ export type LinkDTO = {
 type ListResponse = { items: LinkDTO[]; nextCursor?: string };
 
 function devHeaders(): HeadersInit {
-  if (!isLocalHost) return {};
+  if (!isLocalHost()) return {};
+
   const email = getDevEmail();
-  return email ? { 'Cf-Access-Authenticated-User-Email': email } : {};
+  if (!email) return {};
+
+  // En local, envía SIEMPRE el correo simulado.
+  // Usamos dos nombres por compatibilidad con cualquier middleware que metas.
+  return {
+    'Cf-Access-Authenticated-User-Email': email,
+    'X-Dev-Email': email, // opcional, pero práctico si cambias el nombre del header
+  };
 }
 
 async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -19,14 +27,25 @@ async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
     headers: { 'Content-Type': 'application/json', ...devHeaders(), ...(init.headers || {}) },
     credentials: 'same-origin',
   });
-  if (res.status === 401) {
-    if (!location.pathname.startsWith('/admin/dev-login')) {
-      const next = encodeURIComponent(safeNextFromLocation());
-      location.replace(`/admin/dev-login?next=${next}`);
+
+  if (!res.ok) {
+     if (res.status === 401 && isLocalHost()) {
+      // Intentamos leer el cuerpo para diferenciar
+      let code = 'UNAUTHORIZED';
+      try {
+        const j = await res.clone().json();
+        code = j?.error || code;
+      } catch {
+        /* ignore */
+      }
+      if (code === 'DEV_LOGIN_REQUIRED') {
+        const next = encodeURIComponent(location.pathname + location.search);
+        location.href = `/admin/dev-login?next=${next}`;
+        throw new Error('DEV_LOGIN_REQUIRED');
+      }
     }
-    throw new Error('UNAUTHORIZED');
+  throw new Error(`${res.status} ${res.statusText}`);
   }
-  if (!res.ok) throw new Error(`API ${res.status}: ${await res.text()}`);
   return (await res.json()) as T;
 }
 

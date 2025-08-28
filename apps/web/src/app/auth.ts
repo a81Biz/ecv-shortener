@@ -1,15 +1,36 @@
-export const isLocalHost =
-  /^(127\.0\.0\.1|localhost|.+\.localhost)$/.test(location.hostname);
+export function isLocalHost(): boolean {
+  // Evita crashear en SSR / prerender
+  if (typeof location === 'undefined') return false;
+
+  const host = location.hostname;
+  // localhost y subdominios (admin.localhost, ui.localhost, etc.)
+  if (/^(localhost|.+\.localhost)$/.test(host)) return true;
+
+  // 127.0.0.1, 127.0.1.1, 127.*.*.*
+  if (/^127(?:\.\d{1,3}){3}$/.test(host)) return true;
+
+  // (Opcional) 0.0.0.0 en algunos entornos
+  if (host === '0.0.0.0') return true;
+
+  return false;
+}
 
 const KEY = 'devAccessEmail';
 
 export function getDevEmail(): string | null {
-  const v = localStorage.getItem(KEY);
-  return v && v.trim() ? v.trim() : null;
+  if (typeof localStorage === 'undefined') return null;
+  const raw = localStorage.getItem(KEY);
+  const v = raw && raw.trim();
+  return v ? v : null;
 }
+
 export function setDevEmail(email: string) {
-  localStorage.setItem(KEY, email.trim());
+  if (typeof localStorage === 'undefined') return;
+  const v = (email || '').trim();
+  if (v) localStorage.setItem(KEY, v);
+  else localStorage.removeItem(KEY);
 }
+
 export function clearDevEmail() {
   localStorage.removeItem(KEY);
 }

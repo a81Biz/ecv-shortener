@@ -5,9 +5,15 @@ function isTrue(v: unknown) {
   return v === true || v === 'true' || v === '1';
 }
 
-function isLocalHost(host: string) {
-  return host.includes('localhost');
+export function isLocalHost(host: string): boolean {
+  return (
+    host === 'localhost' ||
+    /^.+\.localhost$/.test(host) ||
+    /^127(?:\.\d{1,3}){3}$/.test(host) ||
+    host === '0.0.0.0'
+  );
 }
+
 
 /**
  * Error HTTP con status para atraparlo en los handlers y responder JSON
@@ -25,46 +31,37 @@ export class HttpError extends Error {
  * En producción, esta cabecera debe existir siempre.
  */
 export function getAccessEmail(req: Request): string | null {
-  const token = req.headers.get('Cf-Access-Jwt-Assertion');
-  if (!token) return null;
-
-  try {
-    // La librería decodifica el token sin necesidad de verificar la firma,
-    // ya que confiamos en que Cloudflare ya lo ha hecho.
-    const decoded = jwt.decode(token);
-    return decoded.payload.email || null;
-  } catch (e) {
-    console.error('Error al decodificar JWT:', e);
-    return null;
+  const jwtToken = req.headers.get('Cf-Access-Jwt-Assertion');
+  if (jwtToken) {
+    try {
+      const decoded = jwt.decode(jwtToken);
+      return decoded?.payload?.email ?? null;
+    } catch { /* ignore y cae a fallback dev */ }
   }
+  return (
+    req.headers.get('Cf-Access-Authenticated-User-Email') ||
+    req.headers.get('X-Dev-Email')
+  );
+}
+function devLoginFlowEnabled(req: Request, env: Env): boolean {
+  const host = new URL(req.url).host;
+  const devEnabled = String((env as any).DEV_LOGIN_ENABLED || '').toLowerCase() === 'true';
+  return devEnabled && isLocalHost(host);
 }
 
-/**
- * Requiere autenticación:
- * - Producción: SOLO acepta Cloudflare Access (cabecera Cf-Access-Authenticated-User-Email).
- * - Local: si DEV_LOGIN_ENABLED=true y host es localhost/admin.localhost:
- *     - si viene cabecera Cf-Access-Authenticated-User-Email => OK (simulación local)
- *     - si NO viene => lanza 401 con mensaje "DEV_LOGIN_REQUIRED" (el front redirige a /admin/dev-login)
- * - En cualquier otro caso => 401 "UNAUTHORIZED"
- *
- * @returns email autenticado (string)
- * @throws HttpError 401
- */
-export function requireAccess(req: Request, env: Env): string {
-  const url = new URL(req.url);
-  const host = url.host;
+// Versión blanda: no lanza; solo informa estado actual
+export function checkAccess(req: Request, env: Env):
+  { email?: string, devRequired?: boolean } {
   const email = getAccessEmail(req);
+  if (email) return { email };
+  if (devLoginFlowEnabled(req, env)) return { devRequired: true };
+  return {};
+}
 
-  // 1) Si ya viene por Access (o simulación) => OK
+// Versión estricta para endpoints realmente protegidos
+export function requireAccess(req: Request, env: Env): string {
+  const { email, devRequired } = checkAccess(req, env);
   if (email) return email;
-
-  // 2) Local con dev-login habilitado explícitamente
-  const devEnabled = isTrue((env as any).DEV_LOGIN_ENABLED);
-  if (devEnabled && isLocalHost(host)) {
-    // No hay header => pedimos dev-login en el cliente
-    throw new HttpError(401, 'DEV_LOGIN_REQUIRED');
-  }
-
-  // 3) Producción (o local sin dev-login) sin header => no autorizado
-  throw new HttpError(401, 'UNAUTHORIZED');
+  if (devRequired) throw new HttpError(401, 'DEV_LOGIN_REQUIRED'); // SOLO local
+  throw new HttpError(401, 'UNAUTHORIZED'); // Producción u otros casos
 }
