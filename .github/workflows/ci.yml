@@ -27,5 +27,8 @@ jobs:
       - name: 4. Instalar dependencias
         run: pnpm install
 
-      - name: 5. Ejecutar pruebas de integración
+      - name: 5. Construir el proyecto
+        run: pnpm build
+
+      - name: 6. Ejecutar pruebas de integración
         run: pnpm test:ci
