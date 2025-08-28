@@ -16,8 +16,6 @@ jobs:
 
       - name: 2. Configurar pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: 3. Configurar Node.js
         uses: actions/setup-node@v4
