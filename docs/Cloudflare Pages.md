@@ -136,5 +136,39 @@ jobs:
 | La CI se quedaba colgada en `HEAD / 404` | `start-server-and-test` esperaba un `200 OK`, pero el sitio estático no estaba construido en el entorno de CI. | Se añadió el paso `pnpm build` al archivo de workflow de GitHub Actions, antes de ejecutar las pruebas. |
 | `Error: #<Response>` en logs de producción | El código de seguridad usaba `throw new Response()` en lugar de `return new Response()`, lo que crasheaba el worker. | Se refactorizó la función de seguridad (`access.ts`) para que lanzara un `new Error()`, y que el enrutador (`router.ts`) lo capturara en un `try...catch` para generar la respuesta `401`. |
 | `"request":{}` (Request vacío en logs) | `JSON.stringify()` no puede serializar el objeto `Request` directamente. | Se extrajeron manualmente las propiedades de interés (`url`, `method`, `headers`) a un objeto simple antes de incluirlo en la respuesta de depuración. |
-| API devolvía `UNAUTHORIZED` en producción | El código buscaba la cabecera `cf-access-authenticated-user-email`, pero Cloudflare Access solo inyectaba la cabecera JWT (`cf-access-jwt-assertion`). | Se modificó el helper de seguridad para que decodificara el token JWT usando la librería `@tsndr/cloudflare-worker-jwt` y extrajera el email desde ahí. |
 | Error 522 en `admin.ecv.lat` | El proyecto de Cloudflare Pages no estaba configurado para aceptar tráfico desde el subdominio `admin.ecv.lat`. | Se añadió `admin.ecv.lat` a la lista de **Custom domains** en la configuración del proyecto de Pages. |
+| **API devolvía `UNAUTHORIZED` en producción (El Error Final)** | El código buscaba la cabecera `cf-access-authenticated-user-email`, pero Cloudflare Access solo inyectaba la cabecera JWT (`cf-access-jwt-assertion`). | Se modificó el helper de seguridad para que decodificara el token JWT y extrajera el email desde ahí. Se instaló `@tsndr/cloudflare-worker-jwt` y se actualizó `access.ts` con la siguiente lógica: |
+
+#### Solución Final del Problema de Autenticación (`access.ts`)
+
+```typescript
+// En: functions/core/security/access.ts
+import jwt from '@tsndr/cloudflare-worker-jwt';
+
+/**
+ * Lee el token JWT de la cabecera de Access y devuelve el email del payload.
+ */
+export function getAuthenticatedEmail(req: Request): string | null {
+  const token = req.headers.get('Cf-Access-Jwt-Assertion');
+  if (!token) return null;
+
+  try {
+    // La librería decodifica el token. Confiamos en que Cloudflare
+    // ya ha verificado la firma criptográfica.
+    const decoded = jwt.decode(token);
+    return decoded.payload.email || null;
+  } catch (e) {
+    console.error('Error al decodificar JWT:', e);
+    return null;
+  }
+}
+
+// La función 'requireAccess' utiliza la función anterior para validar el acceso.
+export function requireAccess(req: Request): string {
+  const email = getAuthenticatedEmail(req);
+  if (!email) {
+    throw new Error('Unauthorized');
+  }
+  return email;
+}
+```
