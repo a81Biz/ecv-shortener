@@ -2,9 +2,9 @@ name: Pruebas de Integración
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, NoTest ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, NoTest ]
 
 jobs:
   test:

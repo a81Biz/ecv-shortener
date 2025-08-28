@@ -10,6 +10,10 @@ overrides:
 importers:
 
   .:
+    dependencies:
+      zod:
+        specifier: ^4.1.4
+        version: 4.1.4
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^4.20240821.0
@@ -2031,6 +2035,9 @@ packages:
   zod@3.22.3:
     resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
 
+  zod@4.1.4:
+    resolution: {integrity: sha512-2YqJuWkU6IIK9qcE4k1lLLhyZ6zFw7XVRdQGpV97jEIZwTrscUw+DY31Xczd8nwaoksyJUIxCojZXwckJovWxA==}
+
 snapshots:
 
   '@ampproject/remapping@2.3.0':
@@ -3857,3 +3864,5 @@ snapshots:
       stacktracey: 2.1.8
 
   zod@3.22.3: {}
+
+  zod@4.1.4: {}
