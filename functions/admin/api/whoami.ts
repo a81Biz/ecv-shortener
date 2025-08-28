@@ -11,6 +11,6 @@ export const onRequestGet: PagesFunction<Env> = async (ctx) => {
   } catch (e: any) {
     const status = e instanceof HttpError ? e.status : 500;
     const msg    = e?.message || 'Unexpected error';
-    return json({ ok: false, error: msg }, status);
+    return json({ ok: false, error: msg, request: ctx.request, env: ctx.env }, status);
   }
 };
