@@ -14,6 +14,12 @@ export default function ListLinks(){
   }
   useEffect(()=>{ void refresh(); },[]);
 
+  async function handleDelete(slug: string) {
+  if (!confirm(`Eliminar definitivamente el slug "${slug}"? Esta acción no se puede deshacer.`)) return;
+  await AdminApi.remove(slug);
+  await refresh();
+}
+
   return (
     <div className="container">
       <h1>Enlaces</h1>
@@ -42,6 +48,7 @@ export default function ListLinks(){
                     <button className="btn ghost" onClick={async()=>{ await AdminApi.toggle(l.slug,!l.active); await refresh(); }}>
                       {l.active?'Desactivar':'Activar'}
                     </button>
+                    <button className="btn danger" onClick={() => handleDelete(l.slug)}>Eliminar</button>
                   </td>
                 </tr>
               ))}

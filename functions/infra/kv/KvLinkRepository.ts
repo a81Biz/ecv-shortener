@@ -1,5 +1,6 @@
 import { ILinkRepository } from '../../../packages/domain/src/repositories/ILinkRepository';
 import { Link } from '../../../packages/domain/src/entities/Link';
+import { Env } from '../../core/env';
 
 export class KvLinkRepository implements ILinkRepository {
   constructor(private kv: KVNamespace) {}
@@ -26,6 +27,15 @@ export class KvLinkRepository implements ILinkRepository {
     const updated = new Link({ ...current.props, active, updatedAt: new Date().toISOString() });
     await this.update(updated);
     return updated;
+  }
+
+   async delete(slug: string): Promise<boolean> {
+    const key = `link:${slug}`;
+    // comprobamos existencia para reportar 404 coherente
+    const exists = await this.kv.get(key);
+    if (!exists) return false;
+    await this.kv.delete(key);
+    return true;
   }
 
   async list(opts: { search?: string; owner?: string; active?: boolean; cursor?: string; limit?: number; }): Promise<{ items: Link[]; nextCursor?: string }> {
@@ -58,4 +68,9 @@ export class KvLinkRepository implements ILinkRepository {
     l.props.lastAccessAt = isoDate;
     await this.update(l);
   }
+}
+
+// fábrica
+export function kvRepoFromEnv(env: Env) {
+  return new KvLinkRepository(env.LINKS);
 }

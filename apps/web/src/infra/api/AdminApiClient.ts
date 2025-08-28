@@ -1,4 +1,3 @@
-// apps/web/src/infra/api/AdminApiClient.ts
 import { getDevEmail, isLocalHost, safeNextFromLocation } from '../../app/auth';
 
 export type LinkDTO = {
@@ -55,6 +54,10 @@ export const AdminApi = {
   toggle(slug: string, active: boolean) {
     return apiFetch<{ ok: true; link: LinkDTO }>(`/${slug}/state`, {
       method: 'PATCH', body: JSON.stringify({ active }),
+    });
+  },remove(slug: string) {
+    return apiFetch<{ ok: true; deleted: true; slug: string }>(`/${slug}`, {
+      method: 'DELETE',
     });
   },
     flushAll() {

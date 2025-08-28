@@ -33,6 +33,15 @@ export default function EditLink() {
     catch { return false; }
   };
 
+  async function deleteHere() {
+  if (!link) return;
+  if (!confirm(`Eliminar definitivamente "${link.slug}"?`)) return;
+  await AdminApi.remove(link.slug);
+  // tras borrar, volver al listado
+  location.assign('/admin/links');
+}
+
+
   async function save() {
     setError(''); setSaving(true);
     try {
@@ -93,6 +102,7 @@ return (
           </button>
           <button className="btn" type="button" onClick={showQr}>QR</button>
           <button className="btn ghost" type="button" onClick={downloadQr}>Descargar QR</button>
+          <button className="btn danger" type="button" onClick={deleteHere}>Eliminar</button>
         </div>
       </form>
 

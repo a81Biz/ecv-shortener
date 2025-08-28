@@ -3,12 +3,14 @@
   "private": true,
   "packageManager": "pnpm@9.0.0",
   "scripts": {
+    "dev:pages": "wrangler pages dev apps/web/dist --compatibility-date=2024-11-01",
     "dev": "pnpm --filter @ecv/web dev",
     "build": "pnpm -r run build",
     "typecheck": "pnpm -r run typecheck",
     "lint": "eslint . --ext .ts,.tsx",
     "test": "pnpm --filter @ecv/domain test",
-    "preview": "pnpm --filter @ecv/web preview"
+    "preview": "pnpm --filter @ecv/web preview",
+    "test:integration": "vitest run --config vitest.config.integration.ts"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240821.0",
@@ -19,6 +21,14 @@
     "@typescript-eslint/parser": "^8.0.1",
     "eslint": "^9.9.0",
     "prettier": "^3.3.3",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vitest": "^3.2.4",
+    "wrangler": "^4.32.0",
+    "youch": "3.2.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "youch": "3.2.3"
+    }
   }
 }
