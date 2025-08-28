@@ -1,0 +1,91 @@
+name: Release (Changesets + Deploy)
+
+on:
+  push:
+    branches: [ master ]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  version-and-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'pnpm'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Changesets Version
+        uses: changesets/action@v1
+        with:
+          publish: pnpm -w run changeset:tag
+          commit: "ci(changesets): version packages"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy-prod:
+    name: Deploy Production (Cloudflare Pages)
+    needs: version-and-tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'pnpm'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @ecv/web build
+
+      # (Opcional) Crear/asegurar namespace KV de producción
+      - name: Ensure KV namespaces (prod)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          command: |
+            kv namespace create ecv_links_prod --json
+
+      - name: Deploy to Cloudflare Pages (prod)
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          command: pages deploy ./apps/web/dist --project-name=${{ secrets.PAGES_PROJECT_NAME }}
+
+  publish-gh-pages:
+    # Publica documentación/artefactos a GitHub Pages (docs + coverage)
+    needs: deploy-prod
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bundle docs + coverage (si existe)
+        run: |
+          mkdir -p ./_site
+          cp -r docs/* ./_site/ || true
+          if [ -d coverage ]; then cp -r coverage ./_site/coverage; fi
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./_site
+      - uses: actions/deploy-pages@v4

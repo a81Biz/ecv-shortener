@@ -65,4 +65,12 @@ export const AdminApi = {
       method: 'POST'
     });
   },
+    async qrSvg(slug: string): Promise<string> {
+    const res = await fetch(`/admin/qr/${encodeURIComponent(slug)}`, {
+    method: 'GET',
+    headers: { 'accept': 'image/svg+xml' },
+      });
+      if (!res.ok) throw new Error(`QR fetch failed: ${res.status}`);
+      return res.text();
+    }
 };

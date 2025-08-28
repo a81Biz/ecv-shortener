@@ -1,0 +1,6 @@
+{
+  "references": [
+    { "path": "functions" },
+    { "path": "apps/web" }
+  ]
+}
