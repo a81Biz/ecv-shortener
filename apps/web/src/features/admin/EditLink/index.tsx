@@ -1,22 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { qrPngDataUrl } from '../../../infra/qr/QrGenerator';
-import { AdminApi } from '../../../infra/api/AdminApiClient';
-
-// Tipado mínimo usado en este componente (rápido y local)
-type LinkDTO = {
-  slug: string;
-  targetUrl: string;
-  active: boolean;
-  createdBy: string;
-  createdAt: string | number;
-  clickCount: number;
-};
+import { AdminApi, LinkDTO } from '../../../infra/api/AdminApiClient';
 
 const isLocal = /^(127\.0\.0\.1|localhost|.+\.localhost)$/.test(location.hostname);
-const goLoginIf401 = (e: unknown) => {
-  const msg = (e as any)?.message;
-  if (isLocal && String(msg) === 'UNAUTHORIZED') location.replace('/admin/dev-login');
+const goLoginIf401 = (e: any) => {
+  if (isLocal && String(e?.message) === 'UNAUTHORIZED') location.replace('/admin/dev-login');
   throw e;
 };
 
@@ -28,122 +16,109 @@ export default function EditLink() {
   const [error, setError] = useState('');
 
   const origin = window.location.origin;
+  const short = `${origin}/${slug}`;
 
   const load = async () => {
-    if (!slug) return;
     try {
       const r = await AdminApi.get(slug);
       setLink(r.link);
       setTargetUrl(r.link.targetUrl);
-    } catch (e) {
-      try { goLoginIf401(e); } catch {}
-    }
+    } catch (e) { try { goLoginIf401(e); } catch {} }
   };
 
   useEffect(() => { void load(); }, [slug]);
 
+  const validUrl = (u: string) => {
+    try { const x = new URL(u); return x.protocol === 'http:' || x.protocol === 'https:'; }
+    catch { return false; }
+  };
+
+  async function deleteHere() {
+  if (!link) return;
+  if (!confirm(`Eliminar definitivamente "${link.slug}"?`)) return;
+  await AdminApi.remove(link.slug);
+  // tras borrar, volver al listado
+  location.assign('/admin/links');
+}
+
+
   async function save() {
-    if (!slug) return;
-    setError('');
-    setSaving(true);
+    setError(''); setSaving(true);
     try {
       const r = await AdminApi.update(slug, { targetUrl });
       setLink(r.link);
     } catch (e: any) {
-      setError(String(e?.message ?? e));
+      setError(String(e.message || e));
       try { goLoginIf401(e); } catch {}
-    } finally {
-      setSaving(false);
-    }
+    } finally { setSaving(false); }
   }
 
-  async function toggle() {
-    if (!link) return;
-    try {
-      const r = await AdminApi.toggle(link.slug, !link.active);
-      setLink(r.link);
-    } catch (e) {
-      try { goLoginIf401(e); } catch {}
-    }
-  }
+// dentro del componente EditLink
+const [qrOpen, setQrOpen] = useState(false);
+const [qrDataUrl, setQrDataUrl] = useState<string>("");
 
-  const [qrOpen, setQrOpen] = useState(false);
-  const [qrDataUrl, setQrDataUrl] = useState<string>('');
+async function showQr() {
+  const data = await qrPngDataUrl(`${origin}/${link!.slug}`, 8);
+  setQrDataUrl(data);
+  setQrOpen(true);
+}
+async function downloadQr() {
+  const data = await qrPngDataUrl(`${origin}/${link!.slug}`, 8);
+  const a = document.createElement("a");
+  a.href = data; a.download = `qr-${link!.slug}.png`; a.click();
+}
 
-  async function showQr() {
-    if (!link) return;
-    const data = await qrPngDataUrl(`${origin}/${link.slug}`, 8);
-    setQrDataUrl(data);
-    setQrOpen(true);
-  }
+if (!link) return <section style={{ padding: 24 }}>Cargando…</section>;
 
-  async function downloadQr() {
-    if (!link) return;
-    const data = await qrPngDataUrl(`${origin}/${link.slug}`, 8);
-    const a = document.createElement('a');
-    a.href = data;
-    a.download = `qr-${link.slug}.png`;
-    a.click();
-  }
+return (
+  <div className="container">
+    <div className="card">
+      <h1>Editar enlace</h1>
 
-  if (!link) return <section style={{ padding: 24 }}>Cargando…</section>;
-
-  return (
-    <div className="container">
-      <div className="card">
-        <h1>Editar enlace</h1>
-
-        <div className="row muted" style={{ marginBottom: 12 }}>
-          <span>Slug:</span>
-          <strong>{link.slug}</strong>
-          <span style={{ marginLeft: 12 }}>Corto:</span>
-          <a href={`${origin}/${link.slug}`} target="_blank" rel="noreferrer">
-            {`${origin}/${link.slug}`}
-          </a>
-        </div>
-
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            void save();
-          }}
-        >
-          <label htmlFor="ed-target">URL de destino</label>
-          <input
-            type="url"
-            id="ed-target"
-            placeholder="https://..."
-            required
-            value={targetUrl}
-            onChange={(e) => setTargetUrl(e.target.value)}
-          />
-
-          <div className="toolbar">
-            <button className="btn primary" type="submit" disabled={saving}>
-              {saving ? 'Guardando…' : 'Guardar'}
-            </button>
-            <button className="btn" type="button" onClick={toggle}>
-              {link.active ? 'Desactivar' : 'Activar'}
-            </button>
-            <button className="btn" type="button" onClick={showQr}>QR</button>
-            <button className="btn ghost" type="button" onClick={downloadQr}>Descargar QR</button>
-          </div>
-        </form>
-
-        {!!error && <p className="muted" style={{ color: '#ef4444', marginTop: 8 }}>Error: {error}</p>}
-
-        <p className="muted" style={{ marginTop: 10 }}>
-          Creado por <span>{link.createdBy}</span> ·{' '}
-          <span>{new Date(link.createdAt).toLocaleString()}</span> ·{' '}
-          Clics: <span>{link.clickCount}</span>
-        </p>
+      <div className="row muted" style={{ marginBottom: 12 }}>
+        <span>Slug:</span>
+        <strong>{link.slug}</strong>
+        <span style={{ marginLeft: 12 }}>Corto:</span>
+        <a href={`${origin}/${link.slug}`} target="_blank" rel="noreferrer">
+          {`${origin}/${link.slug}`}
+        </a>
       </div>
 
-      {qrOpen && (
-        <div className="modal" onClick={() => setQrOpen(false)}>
-          <div className="box"><img src={qrDataUrl} alt="QR" /></div>
+      <form onSubmit={onSave}>
+        <label htmlFor="ed-target">URL de destino</label>
+        <input
+          type="url"
+          id="ed-target"
+          placeholder="https://..."
+          required
+          value={targetUrl}
+          onChange={(e) => setTargetUrl(e.target.value)}
+        />
+
+        <div className="toolbar">
+          <button className="btn primary" type="submit">Guardar</button>
+          <button className="btn" type="button" onClick={toggle}>
+            {link.active ? "Desactivar" : "Activar"}
+          </button>
+          <button className="btn" type="button" onClick={showQr}>QR</button>
+          <button className="btn ghost" type="button" onClick={downloadQr}>Descargar QR</button>
+          <button className="btn danger" type="button" onClick={deleteHere}>Eliminar</button>
         </div>
-      )}
+      </form>
+
+      <p className="muted" style={{ marginTop: 10 }}>
+        Creado por <span>{link.createdBy}</span> ·{" "}
+        <span>{new Date(link.createdAt).toLocaleString()}</span> ·{" "}
+        Clics: <span>{link.clickCount}</span>
+      </p>
     </div>
-  );
+
+    {qrOpen && (
+      <div className="modal" onClick={() => setQrOpen(false)}>
+        <div className="box"><img src={qrDataUrl} alt="QR" /></div>
+      </div>
+    )}
+  </div>
+);
+
 }

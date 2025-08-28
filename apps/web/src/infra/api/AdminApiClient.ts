@@ -55,6 +55,10 @@ export const AdminApi = {
     return apiFetch<{ ok: true; link: LinkDTO }>(`/${slug}/state`, {
       method: 'PATCH', body: JSON.stringify({ active }),
     });
+  },remove(slug: string) {
+    return apiFetch<{ ok: true; deleted: true; slug: string }>(`/${slug}`, {
+      method: 'DELETE',
+    });
   },
     flushAll() {
     return apiFetch<{ ok: true; deleted: number }>(`/admin/flush`, {

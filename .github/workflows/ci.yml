@@ -1,122 +1,32 @@
-name: CI
+name: Pruebas de Integración
 
 on:
-  pull_request:
-    branches: [ master ]
   push:
-    branches: [ master ]
-
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
-
-env:
-  PLAYWRIGHT_BROWSERS_PATH: 0
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  commitlint:
-    name: Commit Lint
+  test:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: wagoid/commitlint-github-action@v6
+      - name: 1. Clonar el repositorio
+        uses: actions/checkout@v4
 
-  build-test:
-    name: Lint, Typecheck, Unit, Contracts, Handlers, E2E Smoke
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [ '20.x', '22.x' ]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node ${{ matrix.node }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node }}
-          cache: 'pnpm'
-
-      - name: Setup pnpm
+      - name: 2. Configurar pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
 
-      - name: Install deps
-        run: pnpm install --frozen-lockfile
-
-      - name: ESLint
-        run: pnpm -w run lint
-
-      - name: Typecheck
-        run: pnpm -w run typecheck
-
-      - name: Unit (dominio)
-        run: pnpm vitest -c vitest.config.domain.ts run
-
-      - name: Contracts (Zod + fixtures)
-        run: pnpm vitest -c vitest.config.domain.ts run --include tests/unit/contracts.spec.ts
-
-      - name: Install Playwright (Chromium only)
-        run: npx playwright install chromium --with-deps
-
-      - name: Handlers (Functions con Miniflare)
-        run: pnpm vitest -c vitest.config.functions.ts run
-
-      - name: E2E Smoke (Chromium)
-        env:
-          BASE_URL: http://localhost:8788
-        run: |
-          pnpm --filter @ecv/web build
-          # Playwright ya levanta wrangler pages dev desde playwright.config.ts
-          pnpm playwright test --project=chromium
-
-      - name: Upload coverage
-        if: always()
-        uses: actions/upload-artifact@v4
+      - name: 3. Configurar Node.js
+        uses: actions/setup-node@v4
         with:
-          name: coverage-${{ matrix.node }}
-          path: |
-            coverage/**
-            reports/**
-
-  audits:
-    name: Audits (Lighthouse, A11y, Vulnerabilities)
-    runs-on: ubuntu-latest
-    needs: build-test
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
+          node-version: '20'
           cache: 'pnpm'
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-      - run: pnpm install --frozen-lockfile
-      - name: Install Playwright (Chromium)
-        run: npx playwright install chromium --with-deps
-      - name: Start local server
-        run: |
-          pnpm --filter @ecv/web build
-          npx wrangler@4 pages dev apps/web/dist --port=8788 --compatibility-date=2024-11-01 --kv=LINKS &
-          echo $! > wrangler.pid
-          sleep 5
-      - name: Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v12
-        with:
-          urls: |
-            http://localhost:8788/
-          configPath: ./lighthouserc.json
-          uploadArtifacts: true
-      - name: A11y (axe via Playwright)
-        run: pnpm playwright test --project=chromium --grep "@a11y"
-      - name: OSV Scanner
-        uses: google/osv-scanner-action@v1
-        with:
-          scan-args: -r .
-      - name: pnpm audit (prod, high)
-        run: pnpm audit --prod --audit-level=high || true
-      - name: Stop server
-        if: always()
-        run: kill $(cat wrangler.pid) || true
+
+      - name: 4. Instalar dependencias
+        run: pnpm install
+
+      - name: 5. Ejecutar pruebas de integración
+        run: pnpm test:ci

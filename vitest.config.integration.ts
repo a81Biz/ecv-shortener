@@ -6,6 +6,6 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     // Aquí vivirán nuestras nuevas pruebas
-    include: ['test/integration/*.spec.ts'],
+    include: ['tests/integration/*.spec.ts'],
   },
 });

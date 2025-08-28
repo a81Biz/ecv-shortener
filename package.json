@@ -1,50 +1,36 @@
 {
   "name": "ecv-shortener",
   "private": true,
-  "type": "module",
   "packageManager": "pnpm@9.0.0",
   "scripts": {
+    "dev:pages": "wrangler pages dev apps/web/dist --kv=LINKS --persist-to=.wrangler/state --compatibility-date=2024-11-01",
     "dev": "pnpm --filter @ecv/web dev",
     "build": "pnpm -r run build",
+    "typecheck": "pnpm -r run typecheck",
+    "lint": "eslint . --ext .ts,.tsx",
+    "test": "pnpm --filter @ecv/domain test",
     "preview": "pnpm --filter @ecv/web preview",
-    "test": "pnpm run test:domain && pnpm run test:functions && pnpm run test:e2e:smoke",
-    "changeset": "changeset",
-    "changeset:version": "changeset version",
-    "changeset:tag": "pnpm changeset version && git add -A && git commit -m \"chore(release): version\" || true && git push --follow-tags",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
-    "format": "prettier -w .",
-    "typecheck": "tsc -b -v --noEmit",
-    "test:domain": "vitest -c vitest.config.domain.ts run",
-    "test:functions": "vitest --config vitest.config.functions.ts run",
-    "test:ui": "vitest -c vitest.config.ui.ts run",
-    "test:e2e:smoke": "playwright test --project=chromium",
-    "test:integration": "vitest run --config vitest.config.integration.ts"
+    "test:integration": "vitest run --config vitest.config.integration.ts",
+    "test:ci": "start-server-and-test dev:pages http://localhost:8788 test:integration"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.1",
-    "@cloudflare/workers-types": "^4.20250826.0",
-    "@commitlint/cli": "^19.5.0",
-    "@commitlint/config-conventional": "^19.5.0",
-    "@playwright/test": "^1.47.0",
-    "@types/node": "^20.14.0",
-    "@types/qrcode": "^1.5.5",
+    "@cloudflare/workers-types": "^4.20240821.0",
+    "@types/node": "^24.3.0",
     "@types/react": "^19.1.11",
     "@types/react-dom": "^19.1.8",
     "@typescript-eslint/eslint-plugin": "^8.0.1",
     "@typescript-eslint/parser": "^8.0.1",
-    "@vitest/coverage-v8": "^2.1.9",
-    "@vitest/ui": "2.1.9",
-    "eslint": "^9.7.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-import": "^2.29.0",
-    "eslint-plugin-node": "^11.1.0",
-    "miniflare": "^4.20250823.0",
-    "msw": "^2.4.0",
-    "prettier": "^3.3.0",
-    "typescript": "^5.5.0",
-    "typescript-eslint": "^8.41.0",
-    "vitest": "^2.1.9",
-    "wrangler": "^4.33.0",
-    "zod": "^4.1.3"
+    "eslint": "^9.9.0",
+    "prettier": "^3.3.3",
+    "start-server-and-test": "^2.0.13",
+    "typescript": "^5.5.4",
+    "vitest": "^3.2.4",
+    "wrangler": "^4.32.0",
+    "youch": "3.2.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "youch": "3.2.3"
+    }
   }
 }

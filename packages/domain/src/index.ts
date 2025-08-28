@@ -8,3 +8,4 @@ export * from './usecases/ToggleLink';
 export * from './usecases/GetLink';
 export * from './usecases/ListLinks';
 export * from './dto/LinkDTO';
+export * from './usecases/DeleteLink';
