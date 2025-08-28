@@ -34,6 +34,7 @@
     }
   },
   "dependencies": {
+    "@tsndr/cloudflare-worker-jwt": "^3.2.0",
     "zod": "^4.1.4"
   }
 }

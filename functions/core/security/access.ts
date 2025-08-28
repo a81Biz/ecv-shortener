@@ -1,5 +1,5 @@
-// functions/core/security/access.ts
 import type { Env } from '../env';
+import jwt from '@tsndr/cloudflare-worker-jwt';
 
 function isTrue(v: unknown) {
   return v === true || v === 'true' || v === '1';
@@ -25,7 +25,18 @@ export class HttpError extends Error {
  * En producción, esta cabecera debe existir siempre.
  */
 export function getAccessEmail(req: Request): string | null {
-  return req.headers.get('Cf-Access-Authenticated-User-Email');
+  const token = req.headers.get('Cf-Access-Jwt-Assertion');
+  if (!token) return null;
+
+  try {
+    // La librería decodifica el token sin necesidad de verificar la firma,
+    // ya que confiamos en que Cloudflare ya lo ha hecho.
+    const decoded = jwt.decode(token);
+    return decoded.payload.email || null;
+  } catch (e) {
+    console.error('Error al decodificar JWT:', e);
+    return null;
+  }
 }
 
 /**
